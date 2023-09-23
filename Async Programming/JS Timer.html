@@ -2,125 +2,99 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JS TIMER</title>
+    <title>Timer</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        input[type="number"] {
+            width: 40px;
+            text-align: center;
+        }
+        #buttons {
+            margin-top: 20px;
+        }
+    </style>
 </head>
-<style>
-    *{
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-    body{
-        height: 100vh;
-        width: 100px;
-        background-color: rebeccapurple;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .box{
-        height: 70vh;
-        width: 1000px;
-        background-color: black;
-        border: 20px solid green;
-        border-radius: 10px;
-        box-shadow: 2px 2px 10px 5px black;
-        overflow: hidden;
-    }
-    .box #display{
-        height: 100vh;
-        width: 100px;
-        color: white;
-        text-align: center;
-        font-size: 40px;
-        line-height: 10vh;
-    }
-</style>
-
 <body>
-    <div class="box">
-        <div id="display">Timer</div>
-        <div id="inps">
-            <form #action>
-                <input type="number" id="hours" placeholder="hours" value="">
-                <input type="number" id="minutes" placeholder="minutes" value="">
-                <input type="number" id="seconds" placeholder="seconds" value="">
-            </form>
-        </div>
-        <div id="buttons">
-            <button id="pause" class="glow-on-hover">Pause</button>
-            <button id="start" class="glow-on-hover">Start</button>
-            <button id="reset" class="glow-on-hover">Reset</button>
-        </div>
+    <h1>JS Timer</h1>
+    <div>
+        <label for="hours">Hours: </label>
+        <input type="number" id="hours" min="0">
+        <label for="minutes">Minutes: </label>
+        <input type="number" id="minutes" min="0" max="59">
+        <label for="seconds">Seconds: </label>
+        <input type="number" id="seconds" min="0" max="59">
     </div>
+    <div id="timer">00:00:00</div>
+    <div id="buttons">
+        <button onclick="startTimer()">Start</button>
+        <button onclick="pauseTimer()">Pause</button>
+        <button onclick="resetTimer()">Reset</button>
+    </div>
+
+    <script>
+
+
+        let timerDisplay = document.getElementById("timer");
+        let hoursInput = document.getElementById("hours");
+        let minutesInput = document.getElementById("minutes");
+        let secondsInput = document.getElementById("seconds");
+        let intervalId;
+        let totalSeconds = 0;
+        let isRunning = false;
+
+        function startTimer() {
+            if (!isRunning) {
+                totalSeconds = parseInt(hoursInput.value) * 3600 + parseInt(minutesInput.value) * 60 + parseInt(secondsInput.value);
+                intervalId = setInterval(updateTimer, 1000);
+                isRunning = true;
+                disableInputs(true);
+            }
+        }
+ 
+        function pauseTimer() {
+            if (isRunning) {
+                clearInterval(intervalId);
+                isRunning = false;
+                disableInputs(false);
+            }
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            totalSeconds = 0;
+            updateTimerDisplay();
+            disableInputs(false);
+        }
+
+        function updateTimer() {
+            if (totalSeconds > 0) {
+                totalSeconds--;
+                updateTimerDisplay();
+            } else {
+                pauseTimer();
+            }
+        }
+
+        function updateTimerDisplay() {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            timerDisplay.textContent = `${formatTime(hours)}:${formatTime(minutes)}:${formatTime(seconds)}`;
+        }
+
+        function formatTime(time) {
+            return time < 10 ? `0${time}` : time;
+        }
+
+        function disableInputs(disabled) {
+            hoursInput.disabled = disabled;
+            minutesInput.disabled = disabled;
+            secondsInput.disabled = disabled;
+        }
+    </script>
 </body>
-<script>
-    const box = document.querySelector("#box");
-
-const display = document.querySelector("#display");
-
-const hours = document.querySelector("#hours");
-const minutes = document.querySelector("#minutes");
-const seconds = document.querySelector("#seconds");
-
-const start = document.querySelector("#start");
-const reset = document.querySelector("#reset");
-const pause = document.querySelector("#pause");
-
-
-
-var Interval = null;
-var total = 0;
-
-
-
-totalValue = () => {
-
-    total = (Number(hours.value) * 3600) + (Number(minutes.value) * 60) + (Number(seconds.value));
-}
-
-function timer() {
-    totalValue();
-    total--;
-    if (total >= 0) {
-        var hr = Math.floor(total / 3600);
-        var min = Math.floor((total / 60) - (hr * 60));
-        var sec = total - ((hr * 3600) + (min * 60));
-
-        hours.value = hr;
-        minutes.value = min;
-        seconds.value = sec;
-
-    } else {
-        display.innerText = "Time Out"
-    }
-}
-
-let flag = false;
-
-start.addEventListener("click", () => {
-
-    if(flag == false) {
-        interval = setInterval(timer, 1000);
-    
-        display.innerText = "Timer Started";
-
-        flag = true;
-
-    }
-})
-
-pause.addEventListener("click", () => {
-    clearInterval(interval);
-})
-
-reset.addEventListener("click", () => {
-    hours.value = "";
-    minutes.value = "";
-    seconds.value = "";
-})
-
-</script>
 </html>
