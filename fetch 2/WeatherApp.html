@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            background-color: rgb(28, 28, 28);
+        }
+
+        #nav {
+            display: flex;
+            height: 30px;
+            align-items: center;
+            background-color: black;
+
+        }
+
+        #head {
+            display: flex;
+            height: 60px;
+            align-items: center;
+            background-color: burlywood;
+
+        }
+
+        #searchInput {
+            width: 35%;
+            padding: 5px;
+            margin-left: 30px;
+            font-size: 20px;
+            border-radius: 5px;
+            border: none;
+            height: 25px;
+        }
+
+        #searchbtn {
+            font-size: 18px;
+            border: none;
+            padding: 5px;
+            width: 100px;
+            height: 35px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: white;
+            gap: 0;
+            background-color: rgb(94, 92, 92);
+        }
+
+        #searchbtn:hover {
+            background-color: rgb(137, 136, 136);
+        }
+
+        #btn_wea {
+            margin-left: 220px;
+        }
+
+        #btn {
+            font-size: 15px;
+            border: none;
+            padding: 8px;
+            border-radius: 7px;
+            cursor: pointer;
+            margin-right: 30px;
+            transition: background 0.5s, transform 0.5s;
+        }
+
+        #btn:hover {
+            background-color: white;
+        }
+
+        #nav_head {
+            background-color: rgb(249, 247, 247);
+
+        }
+
+        #nav_btn {
+            font-size: 15px;
+            border: none;
+            padding: 7px;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: background 0.8s, transform 0.8s;
+        }
+
+        #nav_btn:hover {
+            background-color: white;
+        }
+
+        #display {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .forecast {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-top: 100px;
+            height: auto;
+            margin-left: 20px;
+            border-radius: 10px;
+            background-color: rgb(62, 60, 60);
+            box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px;
+
+        }
+
+        .forecast-card {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            margin: 20px 20px 20px 20px;
+            width: 160px;
+            animation: slideTop 1s ease forwards;
+            animation-delay: 1s;
+            background-color: rgb(102, 101, 101);
+            box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+
+        }
+
+        .forecast-card div:hover {
+            transform: translateY(-30px);
+        }
+
+        .forecast-card h4 {
+            font-size: 20px;
+            font-weight: 900;
+        }
+
+        .forecast-card p {
+            font-size: 17px;
+            margin: 5px 0;
+            font-weight: 900;
+        }
+
+
+        @keyframes slideTop {
+            0% {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(0px);
+                opacity: 1;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+    <div id="nav"></div>
+    <div id="head">
+        <input id="searchInput" type="text" placeholder="  search city">
+        <button id="searchbtn" onclick="search()">Search</button>
+
+        <div id="btn_wea">
+
+            <button id="btn" onclick="weather()">Different Weather?</button>
+        </div>
+        <div id="nav_head">
+            <button id="nav_btn" onclick="metric()">Metric: °C,m/s</button>
+            <button id="nav_btn" onclick="imperial()">Imperial: °F,mph</button>
+        </div>
+    </div>
+    <div id="display">
+        <div>
+
+        </div>
+        <div class="forecast">
+
+        </div>
+
+    </div>
+
+</body>
+
+<script>
+    let screen = document.querySelector("#display >:first-child")
+    let latitude;
+    let longitude;
+    let apiKey = "3f7818713fcb7b70d4ec7926e523dbec"
+    let searchInput = document.getElementById("searchInput");
+    let map = document.querySelector("iframe")
+    async function getCoordinates() {
+        let res = await fetch(`http://api.openweathermap.org/geo/1.0/direct?q=${searchInput.value}&appid=${apiKey}`)
+        let coordinates = await res.json();
+        console.log(coordinates[0])
+        latitude = coordinates[0].lat
+        longitude = coordinates[0].lon
+        getData()
+    }
+    function search() {
+        getCoordinates()
+        map.src = `https://maps.google.com/maps?q=2880%20Broadway,${searchInput.value}&t=&z=13&ie=UTF8&iwloc=&output=embed`
+    }
+
+    async function getData() {
+        let res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}`)
+        let data = await res.json()
+        console.log(data);
+        console.log(latitude, longitude)
+        await getForecast();
+
+    }
+    async function getForecast() {
+        let res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}`)
+        let forecastData = await res.json();
+        displayForecast(forecastData);
+    }
+
+
+    function displayForecast(data) {
+        const forecastSection = document.querySelector('.forecast');
+        forecastSection.innerHTML = '';
+
+        for (let i = 0; i < data.list.length; i += 8) {
+            const forecastCard = document.createElement('div');
+            forecastCard.className = 'forecast-card';
+
+            const date = new Date(data.list[i].dt * 1000);
+            const formattedDate = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+            const iconUrl = `https://openweathermap.org/img/wn/${data.list[i].weather[0].icon}.png`;
+            forecastCard.innerHTML = `
+                    <h4>${formattedDate}</h4>
+                    <img src="${iconUrl}" alt="Weather icon">
+                    <p>${data.list[i].weather[0].description}</p>
+                    <p>Min Temp: ${data.list[i].main.temp_min} °K</p>
+                    <p>Max Temp: ${data.list[i].main.temp_max} °K</p>
+                `;
+
+            forecastSection.appendChild(forecastCard);
+        }
+    }
+
+
+</script>
+
+</html>
