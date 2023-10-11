@@ -47,4 +47,15 @@ npm install react react-dom
 
 c> create a file with a root domain d> create a javaScript file for your React code: e>Run your application:
 
+8. What is React.createElement?
+Ans.eact. createElement Create and return a new React element of the given type. The type argument can be either a tag name string (such as 'div' or 'span' ), a React component type (a class or a function), or a React fragment type.
+
+9. What are the three properties that createElement accept?
+Ans.  The  three type you have passed.
+props : The props you have passed except for ref and key . 
+ref : The ref you have passed. 
+key : The key you have passed, coerced to a string.
+
+10. what is the meaning of render and root?
+Ans. In React render is the process of create a virutal representaion of the React elements or user interface elements and updating the DOM to reflect these changes.And the Root is the DOM element where the top-level React Components is mounted.
 
